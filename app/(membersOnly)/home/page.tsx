@@ -1,0 +1,10 @@
+export default function MembersHomePage() {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-semibold text-[var(--foreground)]">Home</h1>
+      <p className="mt-2 text-[var(--foreground)] opacity-70">
+        Members area — add your content here.
+      </p>
+    </div>
+  );
+}
