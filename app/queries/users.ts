@@ -11,8 +11,8 @@ import {
   UserResponse,
   UsersResponse,
 } from '../lib/api/validation/users';
+import { urls } from '@/utils/urls';
 
-/** Extra options for user mutations (response is API JSON; variables are closed over, so `void`). */
 type UserMutationOptions = Omit<
   UseMutationOptions<UserResponse, Error, void>,
   'mutationFn'
@@ -26,7 +26,7 @@ export const useCreateUser = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/users', {
+      const res = await fetch(urls.api.users.list(), {
         method: 'POST',
         body: JSON.stringify(createUser),
       });
@@ -63,12 +63,11 @@ export const useUsers = (
   });
 };
 
-// is use suspense query better here?
 export const useUser = (id: string, options: QueryOptions<UserResponse>) => {
   return useQuery({
     queryKey: ['user', id],
     queryFn: async () => {
-      const res = await fetch(`/api/users/${id}`);
+      const res = await fetch(urls.api.users.detail(id));
       if (!res.ok) throw new Error('User not found');
       return res.json();
     },
@@ -85,7 +84,7 @@ export const useUpdateUser = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/users', {
+      const res = await fetch(urls.api.users.detail(id), {
         method: 'POST',
         body: JSON.stringify(updateUser),
       });
@@ -103,11 +102,14 @@ export const useUpdateUser = (
 };
 
 // delete
-export const useDeleteUser = (id: string, options: UserMutationOptions = {}) => {
+export const useDeleteUser = (
+  id: string,
+  options: UserMutationOptions = {},
+) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/users${id}`, {
+      const res = await fetch(urls.api.users.detail(id), {
         method: 'POST',
       });
       if (!res.ok) throw new Error('Failed to create user');
