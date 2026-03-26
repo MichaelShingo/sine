@@ -15,5 +15,13 @@ export const urls = {
       list: () => '/api/users',
       detail: (id: string) => `/api/users/${id}`,
     },
+    contracts: {
+      list: () => '/api/contracts',
+      detail: (id: string) => `/api/contracts/${id}`,
+    },
+    templates: {
+      list: () => '/api/templates',
+      detail: (id: string) => `/api/templates/${id}`,
+    },
   },
 };
