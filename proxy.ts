@@ -17,11 +17,11 @@ export default auth((req) => {
     return;
   }
 
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
-    if (!isAuthed) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-  }
+  // if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
+  //   if (!isAuthed) {
+  //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  //   }
+  // }
 });
 
 export const config = {

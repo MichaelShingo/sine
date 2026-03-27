@@ -30,6 +30,7 @@ model Contract {
   deadline    DateTime?
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  signerName  String?
   signerEmail String?
   content     Json?
   signedDate  DateTime?

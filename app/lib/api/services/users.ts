@@ -1,8 +1,8 @@
 import { Prisma } from '@/app/generated/prisma/client';
-import { QueryUserInput, UsersResponse } from '../validation/users';
+import { GetUserInput, UsersResponse } from '../validation/users';
 import prisma from '@/lib/prisma';
 
-export async function list(query: QueryUserInput): Promise<UsersResponse> {
+export async function list(query: GetUserInput): Promise<UsersResponse> {
   const skip = (query.page - 1) * query.limit;
   const where: Prisma.UserWhereInput = {
     ...(query.name && { name: { contains: query.name, mode: 'insensitive' } }),
