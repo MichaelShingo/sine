@@ -1,15 +1,11 @@
-import type { Prisma } from '@/app/generated/prisma/client';
 import { z } from 'zod';
-
-/** Prisma `Contract.content` is `Json?` — use `InputJsonValue` for writes, `JsonValue` when reading */
-export type ContractContentInput = Prisma.InputJsonValue | null;
 
 const contractShape = z.object({
   name: z.string().nullable(),
   deadline: z.coerce.date().nullable(),
   signerName: z.string().nullable(),
   signerEmail: z.string().nullable(),
-  content: z.json().nullable(),
+  content: z.json(),
   signedDate: z.coerce.date().nullable(),
   sent: z.boolean().optional(),
   /** FK to `Template.id`; set to `null` to detach the template */

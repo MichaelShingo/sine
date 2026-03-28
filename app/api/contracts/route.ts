@@ -1,15 +1,17 @@
-import { notFound, noContent, ok, unauthorized } from '@/app/lib/api/https';
+import { unauthorized, created, ok } from '@/app/lib/api/https';
 import { validateBody } from '@/app/lib/api/validation/utils';
-import { updateUserSchema } from '@/app/lib/api/validation/users';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { NextRequest } from 'next/server';
-import { createContractSchema } from '@/app/lib/api/validation/contracts';
+import {
+  createContractSchema,
+  getContractSchema,
+} from '@/app/lib/api/validation/contracts';
 import { Prisma } from '@/app/generated/prisma/client';
 
 export async function CREATE(req: NextRequest) {
   const session = await auth();
-  if (!session) {
+  if (!session || !session.user?.id) {
     return unauthorized();
   }
 
@@ -21,7 +23,97 @@ export async function CREATE(req: NextRequest) {
     return validated.response;
   }
 
+  const { content, ...rest } = validated.data;
+
   const contract = await prisma.contract.create({
-    data: validated.data as Prisma.ContractCreateInput,
+    data: {
+      userId: session.user.id,
+      content: content as Prisma.InputJsonValue,
+      ...rest,
+    },
   });
+
+  return created(contract);
+}
+
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session || !session.user?.id) {
+    return unauthorized();
+  }
+
+  const body = await req.json();
+
+  const validated = validateBody(body, getContractSchema);
+
+  if (!validated.ok) {
+    return validated.response;
+  }
+
+  const {
+    searchTerm,
+    deadlineIsBefore,
+    deadlineIsAfter,
+    signedDateIsBefore,
+    signedDateIsAfter,
+    isSent,
+    templateId,
+    limit,
+    page,
+    sortBy,
+    sortDir,
+  } = validated.data;
+
+  const where: Prisma.ContractWhereInput = {
+    userId: session.user.id,
+  };
+
+  if (typeof isSent === 'boolean') {
+    where.sent = isSent;
+  }
+
+  if (templateId !== undefined) {
+    where.templateId = templateId;
+  }
+
+  if (deadlineIsBefore !== undefined || deadlineIsAfter !== undefined) {
+    where.deadline = {};
+    if (deadlineIsBefore !== undefined) {
+      where.deadline.lt = deadlineIsBefore;
+    }
+    if (deadlineIsAfter !== undefined) {
+      where.deadline.gt = deadlineIsAfter;
+    }
+  }
+
+  if (signedDateIsBefore !== undefined || signedDateIsAfter !== undefined) {
+    where.signedDate = {};
+    if (signedDateIsBefore !== undefined) {
+      where.signedDate.lt = signedDateIsBefore;
+    }
+    if (signedDateIsAfter !== undefined) {
+      where.signedDate.gt = signedDateIsAfter;
+    }
+  }
+
+  const query = searchTerm?.trim();
+  if (query) {
+    where.OR = [
+      { name: { contains: query, mode: 'insensitive' } },
+      { signerName: { contains: query, mode: 'insensitive' } },
+      { signerEmail: { contains: query, mode: 'insensitive' } },
+    ];
+  }
+
+  const contracts = await prisma.contract.findMany({
+    where,
+    take: limit,
+    skip: (page - 1) * limit,
+    orderBy: [
+      { [sortBy]: sortDir } as Prisma.ContractOrderByWithRelationInput,
+      { id: 'asc' },
+    ],
+  });
+
+  return ok(contracts);
 }

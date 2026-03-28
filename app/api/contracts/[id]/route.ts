@@ -110,7 +110,7 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const res = await prisma.contract.delete({
+  await prisma.contract.delete({
     where: {
       id: Number(id),
     },

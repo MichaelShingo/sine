@@ -32,7 +32,7 @@ model Contract {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   signerName  String?
   signerEmail String?
-  content     Json?
+  content     Json
   signedDate  DateTime?
   sent        Boolean   @default(false)
   createdAt   DateTime  @default(now())
@@ -43,10 +43,11 @@ model Contract {
 
 model Template {
   id           Int        @id @default(autoincrement())
+  name         String?
   contracts    Contract[]
   userId       String
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content      Json?
+  content      Json
   placeholders String[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
