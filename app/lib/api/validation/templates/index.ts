@@ -41,3 +41,4 @@ export type TemplateResponse = z.infer<typeof templateResponseSchema>;
 export const templatesResponseSchema = z.array(
   templateResponseSchema.omit(['contracts']),
 );
+export type TemplatesResponse = z.infer<typeof templatesResponseSchema>;

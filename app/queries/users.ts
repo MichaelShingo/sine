@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query';
 import {
   CreateUserInput,
+  GetUsersInput,
   PatchUserInput,
   UserResponse,
   UsersResponse,
@@ -18,9 +19,8 @@ type UserMutationOptions = Omit<
   'mutationFn'
 >;
 
-// create
 export const useCreateUser = (
-  createUser: CreateUserInput,
+  input: CreateUserInput,
   options: UserMutationOptions = {},
 ) => {
   const queryClient = useQueryClient();
@@ -28,7 +28,7 @@ export const useCreateUser = (
     mutationFn: async () => {
       const res = await fetch(urls.api.users.list(), {
         method: 'POST',
-        body: JSON.stringify(createUser),
+        body: JSON.stringify(input),
       });
       if (!res.ok) throw new Error('Failed to create user');
       return res.json();
@@ -43,9 +43,8 @@ export const useCreateUser = (
   });
 };
 
-// read
 export const useUsers = (
-  filters: { page?: number; limit?: number } = {},
+  filters: GetUsersInput,
   options: QueryOptions<UsersResponse>,
 ) => {
   return useQuery({
@@ -75,10 +74,9 @@ export const useUser = (id: string, options: QueryOptions<UserResponse>) => {
   });
 };
 
-// update
 export const useUpdateUser = (
   id: string,
-  updateUser: PatchUserInput,
+  input: PatchUserInput,
   options: UserMutationOptions = {},
 ) => {
   const queryClient = useQueryClient();
@@ -86,7 +84,7 @@ export const useUpdateUser = (
     mutationFn: async () => {
       const res = await fetch(urls.api.users.detail(id), {
         method: 'POST',
-        body: JSON.stringify(updateUser),
+        body: JSON.stringify(input),
       });
       if (!res.ok) throw new Error('Failed to create user');
       return res.json();
@@ -101,7 +99,6 @@ export const useUpdateUser = (
   });
 };
 
-// delete
 export const useDeleteUser = (
   id: string,
   options: UserMutationOptions = {},

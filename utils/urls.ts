@@ -1,14 +1,28 @@
+import { GetTemplateInput } from '@/app/lib/api/validation/templates';
+
+type QueryRecord = Record<string, string | number | boolean | undefined | null>;
+
+const appendQuery = (path: string, query?: QueryRecord): string => {
+  if (!query) return path;
+  const sp = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value != null && value !== '') sp.set(key, String(value));
+  }
+  const qs = sp.toString();
+  return qs ? `${path}?${qs}` : path;
+};
+
 export const urls = {
   home: () => '/',
   login: () => '/login',
   settings: () => '/settings',
   contracts: {
     list: () => '/contracts',
-    detail: (id: string) => `/contracts/${id}`,
+    detail: (id: number) => `/contracts/${id}`,
   },
   templates: {
     list: () => '/templates',
-    detail: (id: string) => `/templates/${id}`,
+    detail: (id: number) => `/templates/${id}`,
   },
   api: {
     users: {
@@ -17,11 +31,12 @@ export const urls = {
     },
     contracts: {
       list: () => '/api/contracts',
-      detail: (id: string) => `/api/contracts/${id}`,
+      detail: (id: number) => `/api/contracts/${id}`,
     },
     templates: {
-      list: () => '/api/templates',
-      detail: (id: string) => `/api/templates/${id}`,
+      list: (filters?: Partial<GetTemplateInput>) =>
+        appendQuery('/api/templates', filters),
+      detail: (id: number) => `/api/templates/${id}`,
     },
   },
 };

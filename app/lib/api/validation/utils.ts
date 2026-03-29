@@ -20,3 +20,18 @@ export function validateBody<S extends z.ZodType>(
   }
   return { ok: true, data: parsed.data };
 }
+
+/**
+ * Validates query string values with a Zod schema. Empty string values are
+ * omitted so optional fields and `.default()` apply as for missing keys.
+ */
+export function validateSearchParams<S extends z.ZodType>(
+  searchParams: URLSearchParams,
+  schema: S,
+): ParseValidatedBodyResult<z.infer<S>> {
+  const raw: Record<string, string> = {};
+  searchParams.forEach((value, key) => {
+    if (value !== '') raw[key] = value;
+  });
+  return validateBody(raw, schema);
+}

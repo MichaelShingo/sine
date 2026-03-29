@@ -14,7 +14,7 @@ export type CreateUserInput = z.infer<typeof createUserSchema>;
 export const updateUserSchema = userShape.partial();
 export type PatchUserInput = z.infer<typeof updateUserSchema>;
 
-export const getUserSchema = z.object({
+export const getUsersSchema = z.object({
   // filters
   name: z.string().min(1),
   email: z.email().min(1),
@@ -28,7 +28,7 @@ export const getUserSchema = z.object({
   sortBy: z.enum(['name', 'email', 'createdAt', 'updatedAt']).default('email'),
   sortDir: z.enum(['asc', 'desc']).default('desc'),
 });
-export type GetUserInput = z.infer<typeof getUserSchema>;
+export type GetUsersInput = z.infer<typeof getUsersSchema>;
 
 export const userResponseSchema = userShape; // omit as necessary
 export type UserResponse = z.infer<typeof userResponseSchema>;

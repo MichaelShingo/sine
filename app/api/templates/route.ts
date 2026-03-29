@@ -1,13 +1,12 @@
 import { Prisma } from '@/app/generated/prisma/client';
-import { created, unauthorized } from '@/app/lib/api/https';
+import { created, ok, unauthorized } from '@/app/lib/api/https';
 import {
   createTemplateSchema,
   getTemplateSchema,
 } from '@/app/lib/api/validation/templates';
-import { validateBody } from '@/app/lib/api/validation/utils';
+import { validateBody, validateSearchParams } from '@/app/lib/api/validation/utils';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import { ok } from 'assert';
 import { NextRequest } from 'next/server';
 
 export async function CREATE(req: NextRequest) {
@@ -43,9 +42,7 @@ export async function GET(req: NextRequest) {
     return unauthorized();
   }
 
-  const body = await req.json();
-
-  const validated = validateBody(body, getTemplateSchema);
+  const validated = validateSearchParams(req.nextUrl.searchParams, getTemplateSchema);
 
   if (!validated.ok) {
     return validated.response;
