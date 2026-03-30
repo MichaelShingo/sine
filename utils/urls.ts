@@ -1,6 +1,10 @@
+import { GetContractInput } from '@/app/lib/api/validation/contracts';
 import { GetTemplateInput } from '@/app/lib/api/validation/templates';
 
-type QueryRecord = Record<string, string | number | boolean | undefined | null>;
+type QueryRecord = Record<
+  string,
+  string | number | boolean | Date | undefined | null
+>;
 
 const appendQuery = (path: string, query?: QueryRecord): string => {
   if (!query) return path;
@@ -30,7 +34,8 @@ export const urls = {
       detail: (id: string) => `/api/users/${id}`,
     },
     contracts: {
-      list: () => '/api/contracts',
+      list: (filters?: Partial<GetContractInput>) =>
+        appendQuery('/api/contracts', filters),
       detail: (id: number) => `/api/contracts/${id}`,
     },
     templates: {

@@ -12,7 +12,7 @@ export const createTemplateSchema = templateShape;
 export type CreateTemplateInput = z.infer<typeof createTemplateSchema>;
 
 export const updateTemplateSchema = templateShape.partial();
-export type updateTemplateInput = z.infer<typeof updateTemplateSchema>;
+export type UpdateTemplateInput = z.infer<typeof updateTemplateSchema>;
 
 export const getTemplateSchema = z.object({
   // filters

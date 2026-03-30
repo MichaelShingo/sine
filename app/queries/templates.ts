@@ -10,6 +10,7 @@ import {
   GetTemplateInput,
   TemplateResponse,
   TemplatesResponse,
+  UpdateTemplateInput,
 } from '../lib/api/validation/templates';
 import { urls } from '@/utils/urls';
 
@@ -17,6 +18,13 @@ type TemplateMutationOptions = Omit<
   UseMutationOptions<TemplateResponse, Error, void>,
   'mutationFn'
 >;
+
+type TemplateDeleteMutationOptions = Omit<
+  UseMutationOptions<void, Error, void>,
+  'mutationFn'
+>;
+
+const jsonHeaders = { 'Content-Type': 'application/json' } as const;
 
 export const useCreateTemplate = (
   input: CreateTemplateInput,
@@ -27,6 +35,7 @@ export const useCreateTemplate = (
     mutationFn: async () => {
       const res = await fetch(urls.api.templates.list(), {
         method: 'POST',
+        headers: jsonHeaders,
         body: JSON.stringify(input),
       });
       if (!res.ok) throw new Error('Failed to create template');
@@ -44,7 +53,7 @@ export const useCreateTemplate = (
 
 export const useTemplates = (
   filters: Partial<GetTemplateInput>,
-  options: QueryOptions<TemplatesResponse>,
+  options: QueryOptions<TemplatesResponse> = {},
 ) => {
   return useQuery({
     queryKey: ['templates', filters],
@@ -59,7 +68,7 @@ export const useTemplates = (
 
 export const useTemplate = (
   id: number,
-  options: QueryOptions<TemplateResponse>,
+  options: QueryOptions<TemplateResponse> = {},
 ) => {
   return useQuery({
     queryKey: ['template', id],
@@ -67,6 +76,56 @@ export const useTemplate = (
       const res = await fetch(urls.api.templates.detail(id));
       if (!res.ok) throw new Error('Failed to fetch template');
       return res.json();
+    },
+    ...options,
+  });
+};
+
+export const useUpdateTemplate = (
+  id: number,
+  input: UpdateTemplateInput,
+  options: TemplateMutationOptions = {},
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(urls.api.templates.detail(id), {
+        method: 'PATCH',
+        headers: jsonHeaders,
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) throw new Error('Failed to update template');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
+      queryClient.invalidateQueries({ queryKey: ['template', id] });
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+    ...options,
+  });
+};
+
+export const useDeleteTemplate = (
+  id: number,
+  options: TemplateDeleteMutationOptions = {},
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(urls.api.templates.detail(id), {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete template');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
+      queryClient.removeQueries({ queryKey: ['template', id] });
+    },
+    onError: (error) => {
+      console.error(error);
     },
     ...options,
   });
