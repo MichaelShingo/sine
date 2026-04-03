@@ -10,7 +10,12 @@ const appendQuery = (path: string, query?: QueryRecord): string => {
   if (!query) return path;
   const sp = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
-    if (value != null && value !== '') sp.set(key, String(value));
+    if (value == null || value === '') continue;
+    if (value instanceof Date) {
+      sp.set(key, value.toISOString());
+    } else {
+      sp.set(key, String(value));
+    }
   }
   const qs = sp.toString();
   return qs ? `${path}?${qs}` : path;

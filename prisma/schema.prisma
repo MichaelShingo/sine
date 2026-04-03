@@ -34,7 +34,7 @@ model Contract {
   signerEmail String?
   content     Json
   signedDate  DateTime?
-  sent        Boolean   @default(false)
+  isSent      Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   templateId  Int?

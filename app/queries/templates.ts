@@ -13,6 +13,7 @@ import {
   UpdateTemplateInput,
 } from '../lib/api/validation/templates';
 import { urls } from '@/utils/urls';
+import { ApiSuccess } from '@/types';
 
 type TemplateMutationOptions = Omit<
   UseMutationOptions<TemplateResponse, Error, void>,
@@ -60,7 +61,9 @@ export const useTemplates = (
     queryFn: async () => {
       const res = await fetch(urls.api.templates.list(filters));
       if (!res.ok) throw new Error('Failed to fetch templates');
-      return res.json();
+      const json = await res.json();
+      if (!json.success) throw new Error('Failed to fetch templates');
+      return json.data;
     },
     ...options,
   });

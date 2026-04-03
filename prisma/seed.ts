@@ -12,13 +12,11 @@ const prisma = new PrismaClient({
 });
 
 const SEED_USER = {
-  id: 'cmn17555d0000wszdqpdjgwpa',
+  id: 'cmndtm2q40000kozd5jvxinpf',
   name: 'Michael Shingo Crawford',
-  email: 'michaelshingotokyo@gmail.com',
+  email: 'mcrawford5376@gmail.com',
   image:
-    'https://lh3.googleusercontent.com/a/ACg8ocK6jJzYVnkEze_WpOIo1sM2Qf9FACJVZb_9oPS4TvKS3OfqWQ=s96-c',
-  createdAt: new Date('2026-03-22T03:27:47.281Z'),
-  updatedAt: new Date('2026-03-22T03:27:47.281Z'),
+    'https://lh3.googleusercontent.com/a/ACg8ocJXG6xZ-Wwgj-uJYyrP3v21ewqljn2vZho51yo9F7qHU5ItTmfEmA=s96-c',
 } as const;
 
 export async function main() {

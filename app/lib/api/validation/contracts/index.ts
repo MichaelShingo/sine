@@ -7,7 +7,7 @@ const contractShape = z.object({
   signerEmail: z.string().nullable(),
   content: z.json(),
   signedDate: z.coerce.date().nullable(),
-  sent: z.boolean().optional(),
+  isSent: z.boolean().optional(),
   /** FK to `Template.id`; set to `null` to detach the template */
   templateId: z.number().int().nullable(),
 });
@@ -27,8 +27,11 @@ export const getContractSchema = z.object({
   deadlineIsAfter: z.coerce.date().optional(),
   signedDateIsBefore: z.coerce.date().optional(),
   signedDateIsAfter: z.coerce.date().optional(),
-  isSent: z.boolean().optional(),
-  templateId: z.number().optional(),
+  isSent: z
+    .transform((val) => val === 'true')
+    .pipe(z.boolean())
+    .optional(),
+  templateId: z.coerce.number().int().optional(),
 
   // pagination
   page: z.coerce.number().min(1).default(1),
@@ -44,7 +47,7 @@ export const getContractSchema = z.object({
       'signerEmail',
       'createdAt',
       'signedDate',
-      'sent',
+      'isSent',
       'updatedAt',
     ])
     .default('createdAt'),

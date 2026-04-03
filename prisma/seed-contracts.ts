@@ -34,7 +34,7 @@ export const sampleContracts: SampleContractSeed[] = Array.from(
     const partner = PARTNERS[i % PARTNERS.length];
     const batch = Math.floor(i / PARTNERS.length) + 1;
     const signed = i % 3 !== 0;
-    const sent = i % 4 !== 0;
+    const isSent = i % 4 !== 0;
     const deadline = addDays(now, ((i * 7) % 120) - 30);
     const signedDate = signed ? addDays(now, -((i % 50) + 1)) : null;
 
@@ -54,7 +54,7 @@ export const sampleContracts: SampleContractSeed[] = Array.from(
         body: `This sample agreement covers work between Sine and ${partner} (engagement ${batch}).`,
       },
       signedDate,
-      sent,
+      isSent,
       templateId: null,
     };
   },

@@ -63,7 +63,12 @@ export const useContracts = (
         headers: jsonHeaders,
       });
       if (!res.ok) throw new Error('Failed to fetch contracts');
-      return res.json();
+      const json = (await res.json()) as {
+        success: boolean;
+        data: ContractsResponse;
+      };
+      if (!json.success) throw new Error('Failed to fetch contracts');
+      return json.data;
     },
 
     ...options,

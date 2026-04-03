@@ -1,5 +1,8 @@
 import { unauthorized, created, ok } from '@/app/lib/api/https';
-import { validateBody } from '@/app/lib/api/validation/utils';
+import {
+  validateBody,
+  validateSearchParams,
+} from '@/app/lib/api/validation/utils';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { NextRequest } from 'next/server';
@@ -42,10 +45,10 @@ export async function GET(req: NextRequest) {
     return unauthorized();
   }
 
-  const body = await req.json();
-
-  const validated = validateBody(body, getContractSchema);
-
+  const validated = validateSearchParams(
+    req.nextUrl.searchParams,
+    getContractSchema,
+  );
   if (!validated.ok) {
     return validated.response;
   }
@@ -69,7 +72,7 @@ export async function GET(req: NextRequest) {
   };
 
   if (typeof isSent === 'boolean') {
-    where.sent = isSent;
+    where.isSent = isSent;
   }
 
   if (templateId !== undefined) {
@@ -105,15 +108,30 @@ export async function GET(req: NextRequest) {
     ];
   }
 
-  const contracts = await prisma.contract.findMany({
-    where,
-    take: limit,
-    skip: (page - 1) * limit,
-    orderBy: [
-      { [sortBy]: sortDir } as Prisma.ContractOrderByWithRelationInput,
-      { id: 'asc' },
-    ],
-  });
+  const [contracts, total] = await Promise.all([
+    prisma.contract.findMany({
+      where,
+      take: limit,
+      skip: (page - 1) * limit,
+      orderBy: [
+        { [sortBy]: sortDir } as Prisma.ContractOrderByWithRelationInput,
+        { id: 'asc' },
+      ],
+    }),
+    prisma.contract.count({ where }),
+  ]);
 
-  return ok(contracts);
+  const totalPages = Math.ceil(total / limit);
+
+  return ok({
+    data: contracts,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext: page < totalPages,
+      cursor: validated.data.cursor ?? null,
+    },
+  });
 }
