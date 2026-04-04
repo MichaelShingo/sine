@@ -4,9 +4,9 @@ import { Noto_Sans } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { TanstackProvider } from '@/components/providers/TanstackProvider';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '@/theme';
 import { ReactNode } from 'react';
+import AppThemeProvider from '@/context/AppThemeContext';
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 
 const notoSans = Noto_Sans({
   variable: '--font-noto-sans',
@@ -28,14 +28,18 @@ export default function RootLayout({
     <SessionProvider>
       <TanstackProvider>
         <html
+          suppressHydrationWarning
           lang="en"
-          className={`${notoSans.variable} h-full antialiased`}
+          className={`${notoSans.variable} h-full antialiased bg-background-default`}
         >
           <body className="min-h-full flex flex-col">
             <AppRouterCacheProvider
               options={{ key: 'css', enableCssLayer: true }}
             >
-              <ThemeProvider theme={theme}>{children}</ThemeProvider>
+              <AppThemeProvider>
+                <InitColorSchemeScript defaultMode="system" attribute="class" />
+                {children}
+              </AppThemeProvider>
             </AppRouterCacheProvider>
           </body>
         </html>

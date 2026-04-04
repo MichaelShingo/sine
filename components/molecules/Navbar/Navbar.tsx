@@ -17,7 +17,14 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
-import { useEffect, useId, useState, type MouseEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useState,
+  type MouseEvent,
+} from 'react';
+import { useColorScheme } from '@mui/material/styles';
 
 const STORAGE_KEY = 'color-scheme';
 
@@ -50,73 +57,16 @@ const PLACEHOLDER_NOTIFICATIONS: NavNotification[] = [
   },
 ];
 
-function NavbarLogo({ isDark }: { isDark: boolean }) {
-  const maskId = useId().replace(/:/g, '');
-
-  return (
-    <svg
-      viewBox="0 0 40 40"
-      className={`h-9 w-9 shrink-0 ${isDark ? 'text-teal-400' : 'text-teal-600'}`}
-      aria-hidden
-    >
-      <defs>
-        <mask id={maskId}>
-          <rect width="40" height="40" fill="black" />
-          <circle cx="20" cy="20" r="18" fill="white" />
-          <path
-            d="M 2 20 Q 11 11, 20 20 T 38 20"
-            stroke="black"
-            strokeWidth="6"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </mask>
-      </defs>
-      <rect
-        width="40"
-        height="40"
-        fill="currentColor"
-        mask={`url(#${maskId})`}
-      />
-    </svg>
-  );
-}
-
 export function Navbar() {
   const { data: session, status } = useSession();
-  const [isDark, setIsDark] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
   const [notificationsAnchorEl, setNotificationsAnchorEl] =
     useState<null | HTMLElement>(null);
   const notificationsOpen = Boolean(notificationsAnchorEl);
   const notifications = PLACEHOLDER_NOTIFICATIONS;
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const stored = localStorage.getItem(STORAGE_KEY) as 'dark' | 'light' | null;
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)',
-    ).matches;
-    const dark =
-      stored === 'dark' ||
-      (stored !== 'light' && stored === null && prefersDark);
-    root.classList.toggle('dark', dark);
-    root.classList.toggle('light', !dark);
-    queueMicrotask(() => setIsDark(dark));
-  }, []);
-
-  const toggleColorMode = () => {
-    setIsDark((prev) => {
-      const next = !prev;
-      const root = document.documentElement;
-      root.classList.toggle('dark', next);
-      root.classList.toggle('light', !next);
-      localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light');
-      return next;
-    });
-  };
+  const [isScrolledToTop, setIsScrolledToTop] = useState(true);
+  const { mode, systemMode, setMode } = useColorScheme();
 
   const handleAvatarClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -144,61 +94,60 @@ export function Navbar() {
       .slice(0, 2)
       .toUpperCase() ?? '?';
 
+  useEffect(() => {
+    const updateScrollTop = () => {
+      const y = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolledToTop(y < 1);
+    };
+
+    updateScrollTop();
+    window.addEventListener('scroll', updateScrollTop, { passive: true });
+    return () => window.removeEventListener('scroll', updateScrollTop);
+  }, []);
+
+  const toggleDarkTheme = useCallback(() => {
+    if (mode) {
+      const currentMode = mode === 'dark' ? 'light' : 'dark';
+      setMode(currentMode);
+    }
+  }, [mode, setMode]);
+
+  if (!mode) {
+    return null;
+  }
+
   return (
     <Box
       component="header"
-      className={`sticky top-0 z-50 border-b backdrop-blur-md ${
-        isDark
-          ? 'border-zinc-800 bg-zinc-950/90'
-          : 'border-zinc-200 bg-white/90'
+      className={`sticky transition-all duration-700 z-50 border border-divider backdrop-blur-md rounded-full ${
+        isScrolledToTop
+          ? 'top-0 shadow-none bg-background-paper mx-2'
+          : 'shadow-md top-3 bg-background-paper/50 hover:bg-background-primary/50 mx-12'
       }`}
     >
       <Box className="mx-auto flex h-14 max-w-[1600px] items-center gap-2 px-3 sm:gap-4 sm:px-4">
         <Link
           href="/home"
-          className="flex shrink-0 items-center gap-2 rounded-full p-1 outline-none ring-teal-500/40 transition hover:opacity-90 focus-visible:ring-2"
+          className="flex shrink-0 items-center gap-2 rounded-full p-1 outline-none transition hover:opacity-90 focus-visible:ring-2"
           aria-label="Home"
         >
-          <NavbarLogo isDark={isDark} />
+          <Typography variant="h5">Sine</Typography>
         </Link>
         <div className="min-w-0 flex-1" />
 
-        <TextField
-          size="small"
-          placeholder="Search"
-          className="min-w-0 flex-1"
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon
-                    className={isDark ? 'text-zinc-500' : 'text-zinc-400'}
-                    fontSize="small"
-                  />
-                </InputAdornment>
-              ),
-              className: isDark
-                ? 'rounded-lg bg-zinc-900/80 text-zinc-100'
-                : 'rounded-lg bg-zinc-100/80 text-zinc-900',
-            },
-          }}
-          variant="outlined"
-        />
-
         <div className="min-w-0 flex-1" />
 
-        <Tooltip title={isDark ? 'Light mode' : 'Dark mode'}>
+        <Tooltip title={mode === 'dark' ? 'Light mode' : 'Dark mode'}>
           <IconButton
             type="button"
-            onClick={toggleColorMode}
+            onClick={toggleDarkTheme}
             aria-label="Toggle color mode"
-            className={
-              isDark
-                ? 'text-zinc-300 hover:bg-zinc-800'
-                : 'text-zinc-600 hover:bg-zinc-100'
-            }
           >
-            {isDark ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
+            {mode === 'dark' ? (
+              <LightModeOutlinedIcon />
+            ) : (
+              <DarkModeOutlinedIcon />
+            )}
           </IconButton>
         </Tooltip>
 
@@ -210,11 +159,6 @@ export function Navbar() {
             aria-haspopup="true"
             aria-expanded={notificationsOpen ? 'true' : undefined}
             onClick={(e) => setNotificationsAnchorEl(e.currentTarget)}
-            className={
-              isDark
-                ? 'text-zinc-300 hover:bg-zinc-800'
-                : 'text-zinc-600 hover:bg-zinc-100'
-            }
           >
             <Badge
               badgeContent={notifications.length}
@@ -234,17 +178,8 @@ export function Navbar() {
           onClose={handleNotificationsClose}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          slotProps={{
-            paper: {
-              className: `mt-1 max-h-[min(420px,70vh)] max-w-[min(360px,calc(100vw-24px))] overflow-auto ${
-                isDark ? 'bg-zinc-900 text-zinc-100' : 'bg-white text-zinc-900'
-              }`,
-            },
-          }}
         >
-          <Box
-            className={`border-b px-3 py-2 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
-          >
+          <Box className="border-b px-3 py-2">
             <Typography variant="subtitle2" component="div" fontWeight={600}>
               Notifications
             </Typography>
@@ -258,9 +193,7 @@ export function Navbar() {
               <MenuItem
                 key={n.id}
                 onClick={handleNotificationsClose}
-                className={`flex flex-col items-stretch gap-1 py-2.5 ${
-                  isDark ? 'hover:bg-zinc-800' : 'hover:bg-zinc-50'
-                }`}
+                className="flex flex-col items-stretch gap-1 py-2.5"
               >
                 <Typography
                   variant="subtitle2"
@@ -290,16 +223,7 @@ export function Navbar() {
         </Menu>
 
         <Tooltip title="Settings">
-          <IconButton
-            component={Link}
-            href="/settings"
-            aria-label="Settings"
-            className={
-              isDark
-                ? 'text-zinc-300 hover:bg-zinc-800'
-                : 'text-zinc-600 hover:bg-zinc-100'
-            }
-          >
+          <IconButton component={Link} href="/settings" aria-label="Settings">
             <SettingsOutlinedIcon />
           </IconButton>
         </Tooltip>

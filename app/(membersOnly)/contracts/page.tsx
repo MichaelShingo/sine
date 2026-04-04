@@ -17,7 +17,7 @@ export default function ContractsPage() {
         templates={templates}
       />
       {error != null && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm" role="alert">
           {error.message}
         </p>
       )}
