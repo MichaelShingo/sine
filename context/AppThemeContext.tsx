@@ -42,7 +42,9 @@ const AppThemeProvider = (props: PropsWithChildren) => {
             main: '#ff8549',
           },
           success: {
-            main: '#366cd8',
+            main: '#2e7d32',
+            light: '#4caf50',
+            dark: '#1b5e20',
           },
           info: {
             main: '#8b45ff',
@@ -62,8 +64,8 @@ const AppThemeProvider = (props: PropsWithChildren) => {
                 main: '#344dc2',
               },
               background: {
-                default: '#eae4ff',
-                paper: '#5c5cff',
+                paper: '#ffffff',
+                default: '#f0f0f0',
               },
             },
           },

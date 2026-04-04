@@ -12,6 +12,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { FC } from 'react';
+import Paper from '@mui/material/Paper';
 
 export type SentFilter = 'any' | 'sent' | 'notSent';
 export type DeadlineMode = 'none' | 'before' | 'after';
@@ -52,7 +53,7 @@ export const ContractsFiltersBar: FC<ContractsFiltersBarProps> = ({
   const deadlineNeedsDate = filters.deadlineMode !== 'none';
 
   return (
-    <div className="sticky top-0 z-20 -mx-4 mb-4 border-b border-neutral-200/90 bg-background px-4 py-3 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 lg:-mx-10 lg:px-10 xl:-mx-12 xl:px-12">
+    <Paper className="sticky top-0 z-20 px-5 py-5">
       <div className="flex flex-wrap items-end gap-3">
         <TextField
           size="small"
@@ -176,6 +177,6 @@ export const ContractsFiltersBar: FC<ContractsFiltersBarProps> = ({
           </Select>
         </FormControl>
       </div>
-    </div>
+    </Paper>
   );
 };

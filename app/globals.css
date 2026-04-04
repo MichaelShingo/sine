@@ -263,6 +263,9 @@
   --overlay-22: var(--mui-overlays-22);
   --overlay-23: var(--mui-overlays-23);
   --overlay-24: var(--mui-overlays-24);
+
+  /* Animations */
+  --animate-card-in: card-in 0.3s ease-in both;
 }
 
 /* Material UI base styles */
@@ -313,4 +316,15 @@
 @utility elevation-* {
   background-image: --value(--overlay-*);
   box-shadow: --value(--shadow-*);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
 }
